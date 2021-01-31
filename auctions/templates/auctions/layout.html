@@ -2,24 +2,33 @@
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>{% block title %}Auctions{% endblock %}</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.1/css/bulma.min.css">
-        <link rel="stylesheet" href="{% static 'auctions/styles.css' %}">
-    </head>
-    <body>
-        <div class="container">
 
-            {% include 'auctions/nav.html' %}
-            
-            {% if message %}
-                <div>{{ message }}</div>
-            {% endif %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if title %}
+    <title>{{ title }}</title>
+    {% else %}
+    <title>COMMERCE</title>
+    {% endif %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.1/css/bulma.min.css">
+    <link rel="stylesheet" href="{% static 'auctions/styles.css' %}">
+</head>
 
-            {% block content %}
-            {% endblock %}
+<body>
+    <div class="container">
 
-        </div>
+        {% include 'auctions/nav.html' %}
 
-    </body>
+        {% for message in messages %}
+        <div class="block has-text-centered">{{ message }}</div>
+        {% endfor %}
+
+        {% block content %}
+        {% endblock %}
+
+    </div>
+
+</body>
+
 </html>

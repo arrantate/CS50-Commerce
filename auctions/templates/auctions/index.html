@@ -1,7 +1,43 @@
 {% extends "auctions/layout.html" %}
 
 {% block content %}
-    <h2>Active Listings</h2>
+<div class="columns is-multiline">
+    {% for listing, highest_bid in listings %}
 
-    TODO
+    <div class="column is-one-quarter-desktop is-one-third-tablet is-full-mobile">
+        <div class="card">
+            {% if listing.image %}
+            <div class="card-image is-1by1">
+                <figure class="image has-ratio" style="width: 100%; height: auto;">
+
+                    <img src="{{ listing.image }}" alt="{{ listing.title }}">
+
+                </figure>
+            </div>
+            {% endif %}
+            <div class="card-content">
+
+
+                <div class="block">
+                    <p class="title is-4"><a href="{% url 'listing' listing.pk %}">{{ listing.title }}</a></p>
+                    {% if highest_bid %}
+                    <p class=" subtitle is-6">Highest bid: £{{ highest_bid }}</p>
+                    {% else %}
+                    <p class="subtitle is-6">Starting bid: £{{ listing.starting_bid }}</p>
+                    {% endif %}
+                </div>
+
+
+                <div class="content">
+                    {{ listing.description }}
+                    <br>
+                    <p class="block is-size-7 pt-2" style="text-align: center;">{{ listing.date_created }}
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

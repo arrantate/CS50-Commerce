@@ -1,0 +1,20 @@
+{% extends "auctions/layout.html" %}
+
+{% block content %}
+<nav class="panel">
+    <p class="panel-heading">
+        {{ title }}
+    </p>
+
+    {% for listing in wishlist %}
+    <a class="panel-block" href="{% url 'listing' listing.item.pk %}">
+        <span class="panel-icon">
+        </span>
+        {{ listing.item.title }}
+    </a>
+    {% endfor %}
+</nav>
+
+
+
+{% endblock %}
