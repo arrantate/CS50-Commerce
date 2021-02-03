@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from .models import User, Listing, Category, WatchList
+from .forms import NewListingForm
 from .decorators import user_is_authenticated
 from django.db.models import Max
 from django.contrib import messages
@@ -162,3 +163,35 @@ def category(request, category_name):
         'categories': Category.objects.all(),
     }
     return render(request, "auctions/index.html", context)
+
+
+@user_is_authenticated
+def new_listing(request):
+    user = request.user
+
+    if request.method == 'POST':
+        form = NewListingForm(request.POST)
+        if form.is_valid():
+            print(form.cleaned_data['category'])
+            category = Category.objects.get(name=form.cleaned_data['category'])
+            new_listing = Listing(
+                title = form.cleaned_data['title'],
+                description = form.cleaned_data['description'],
+                starting_bid = form.cleaned_data['starting_bid'],
+                image = form.cleaned_data['image_url'],
+                category = category,
+                seller = user,
+            )
+            new_listing.save()
+
+            return redirect('listing', listing_pk=new_listing.pk)
+
+    else:
+        form = NewListingForm()
+
+    context = {
+        'title': 'New Listing',
+        'categories': Category.objects.all(),
+        'form': form,
+    }
+    return render(request, "auctions/new_listing.html", context)
