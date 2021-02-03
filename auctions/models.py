@@ -4,7 +4,7 @@ from django.db import models
 
 class User(AbstractUser):
     # .listings
-    # .wish_list
+    # .watch_list
     # .bids
     pass
 
@@ -28,15 +28,15 @@ class Listing(models.Model):
     seller = models.ForeignKey(User, null=False, on_delete=models.CASCADE, related_name='listings')
     category = models.ForeignKey(Category, null=True, on_delete=models.SET_NULL, related_name='listings')
     # .bids
-    # .wish_list
+    # .watch_list
     
     def __str__(self):
         return self.title
 
 
-class WishList(models.Model):
-    user = models.ForeignKey(User, blank=False, on_delete=models.CASCADE, related_name='wish_list')
-    item = models.ForeignKey(Listing, blank=False, on_delete=models.CASCADE, related_name='wish_list')
+class WatchList(models.Model):
+    user = models.ForeignKey(User, blank=False, on_delete=models.CASCADE, related_name='watch_list')
+    item = models.ForeignKey(Listing, blank=False, on_delete=models.CASCADE, related_name='watch_list')
 
     def __str__(self):
         return f'{self.user} > {self.item}'

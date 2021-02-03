@@ -3,12 +3,21 @@
 {% block content %}
 <div class="has-text-centered">
     <h1 class="title is-3">{{ listing.title }}</h1>
+
     {% if listing.category %}
     <h2 class="subtitle is-4">{{ listing.category }}</h2>
     {% endif %}
-    <a href="{% url 'wishlist_add' listing.pk %}">Add to wishlist</a>
+
     {% if listing.image %}
-    <img style="max-width: 400px; margin: 1rem;" src="{{ listing.image }}" alt="{{ listing.title }}">
+    <img style="max-width: 400px; margin: 1rem;" src="{{ listing.image }}" alt="{{ listing.title }}"><br>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+    {% if listing_in_watch_list %}
+    This item is in your watchlist. <a href="{% url 'watchlist_remove' listing.pk %}">Remove?</a>
+    {% else %}
+    <a href="{% url 'watchlist_add' listing.pk %}">Add to watchlist</a>
+    {% endif %}
     {% endif %}
 </div>
 

@@ -6,15 +6,21 @@
         {{ title }}
     </p>
 
-    {% for listing in wishlist %}
+    {% if watchlist %}
+    {% for listing in watchlist %}
     <a class="panel-block" href="{% url 'listing' listing.item.pk %}">
         <span class="panel-icon">
         </span>
         {{ listing.item.title }}
     </a>
     {% endfor %}
+    {% else %}
+    <p class="panel-block">
+        <span class="panel-icon">
+        </span>
+        Your watch list is empty.
+    </p>
+    {% endif %}
 </nav>
-
-
 
 {% endblock %}

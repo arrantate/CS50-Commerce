@@ -4,7 +4,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import User, Listing, Category, WishList
+from .models import User, Listing, Category, WatchList
+from .decorators import user_is_authenticated
 from django.db.models import Max
 from django.contrib import messages
 
@@ -48,6 +49,7 @@ def login_view(request):
         return render(request, "auctions/login.html", context)
 
 
+@user_is_authenticated
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
@@ -85,40 +87,64 @@ def register(request):
 
 
 def listing(request, listing_pk):
+    user = request.user
+
     listing = Listing.objects.get(pk=listing_pk)
-    
+    if user.is_authenticated:
+        listing_in_watch_list = WatchList.objects.filter(user=user, item=listing).exists()
+    else:
+        # This is to be assigned in the case that there is no user logged in
+        listing_in_watch_list = None
+
     context = {
         'title': listing.title,
         'listing': listing,
+        'listing_in_watch_list': listing_in_watch_list,
         'categories': Category.objects.all(),
     }
 
     return render(request, "auctions/listing.html", context)
 
 
-def wishlist(request):
+@user_is_authenticated
+def watchlist(request):
     if request.user.is_authenticated:
         user = request.user
     else:
         return redirect('index')
 
-    print(user.wish_list.all())
+    print(user.watch_list.all())
 
     context = {
-        'title': f"{user.username}'s Wishlist",
-        'wishlist': user.wish_list.all(),
+        'title': f"{user.username}'s Watchlist",
+        'watchlist': user.watch_list.all(),
         'categories': Category.objects.all(),
     }
-    return render(request, 'auctions/wishlist.html', context)
+    return render(request, 'auctions/watchlist.html', context)
 
 
-def wishlist_add(request, listing_pk):
+@user_is_authenticated
+def watchlist_add(request, listing_pk):
+    user = request.user
     listing = Listing.objects.get(pk=listing_pk)
 
-    wishlist_entry = WishList(user=request.user, item=listing)
-    wishlist_entry.save()
+    if WatchList.objects.filter(user=user, item=listing).exists() == False:
+        watchlist_entry = WatchList(user=user, item=listing)
+        watchlist_entry.save()
+        messages.success(request, f'{listing.title} added to watchlist.')
+        
+    return redirect('listing', listing_pk=listing_pk)
 
-    messages.success(request, f'{listing.title} added to wishlist.')
+
+@user_is_authenticated
+def watchlist_remove(request, listing_pk):
+    user = request.user
+    listing = Listing.objects.get(pk=listing_pk)
+
+    if WatchList.objects.filter(user=user, item=listing).exists():
+        WatchList.objects.filter(user=user, item=listing).delete()
+        messages.success(request, f'{listing.title} removed from watchlist.')
+        
     return redirect('listing', listing_pk=listing_pk)
 
 
