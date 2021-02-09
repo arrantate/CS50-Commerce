@@ -23,20 +23,30 @@
 
 <div class="card">
     <div class="card-content">
+        <p class="is-5"><strong>Seller:</strong> {{ listing.seller }}</p>
+
+        {% if highest_bid %}
+        <strong>Highest bid:</strong> £{{ highest_bid }} {% if user == highest_bidder %}(you){% endif %}
+        {% else %}
+        <strong>Starting bid:</strong> £{{ highest_bid }}
+        {% endif %}
+
+        {% if user != listing.seller and user.is_authenticated %}
+        <form action="{% url 'new_bid' listing.pk %}" method="POST">
+            {% csrf_token %}
+            <input class="input" style="width:200px;" name="bid" type="number" required name="amount"
+                value="{{ lowest_new_bid }}" min="{{ lowest_new_bid }}" step=".01">
+            <button class="button is-info" type="submit">Bid</button>
+        </form>
+        {% endif %}
+        <hr>
         {{ listing.description }}
         <br>
         <p class="block is-size-7 pt-2">{{ listing.date_created }}</p>
     </div>
-
-    <div class="card-content">
-        {% if highest_bid %}
-        <p class=" subtitle is-6">Highest bid: £{{ highest_bid }}</p>
-        {% else %}
-        <p class="subtitle is-6">Starting bid: £{{ listing.starting_bid }}</p>
-        {% endif %}
-    </div>
 </div>
 <br>
+
 <div class="card">
     <div class="card-content">
         <p class="subtitle is-4">Comments</p>

@@ -97,12 +97,27 @@ def listing(request, listing_pk):
         # This is to be assigned in the case that there is no user logged in
         listing_in_watch_list = None
 
+    if listing.bids.exists():
+        highest_bid = listing.bids.aggregate(Max('amount')).get('amount__max')
+        highest_bidder = listing.bids.annotate(Max('amount')).order_by('-amount').first().bidder
+        print(highest_bidder)
+    else:
+        highest_bid = listing.starting_bid
+        highest_bidder = None
+    
+    lowest_new_bid = round((float(highest_bid) + 0.01), 2)
+    highest_bid = f"{highest_bid:.2f}"
+
     context = {
         'title': listing.title,
         'listing': listing,
         'listing_in_watch_list': listing_in_watch_list,
         'categories': Category.objects.all(),
         'comments': Comment.objects.filter(listing=listing).order_by('-date_created'),
+        'highest_bid': highest_bid,
+        'highest_bidder': highest_bidder,
+        'lowest_new_bid': lowest_new_bid,
+
     }
 
     if request.method == "POST":
@@ -201,3 +216,24 @@ def new_listing(request):
         'form': form,
     }
     return render(request, "auctions/new_listing.html", context)
+
+
+@user_is_authenticated
+def new_bid(request, listing_pk):
+    user = request.user
+    listing = Listing.objects.get(pk=listing_pk)
+
+    if request.method == "POST":
+        bid = round(float(request.POST.get('bid')), 2)
+
+        if listing.bids.exists():
+            highest_bid = listing.bids.aggregate(Max('amount')).get('amount__max')
+        else:
+            highest_bid = listing.starting_bid
+
+        if bid > highest_bid:
+            new_bid = Bid(bidder=user, listing=listing, amount=bid)
+            new_bid.save()
+            messages.success(request, f'Bid placed on {listing.title} for £{bid:.2f}')
+
+    return redirect('listing', listing_pk=listing_pk)
