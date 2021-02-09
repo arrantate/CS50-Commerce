@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import User, Listing, Category, WatchList
+from .models import User, Listing, Category, WatchList, Bid, Comment
 from .forms import NewListingForm
 from .decorators import user_is_authenticated
 from django.db.models import Max
@@ -102,7 +102,13 @@ def listing(request, listing_pk):
         'listing': listing,
         'listing_in_watch_list': listing_in_watch_list,
         'categories': Category.objects.all(),
+        'comments': Comment.objects.filter(listing=listing).order_by('-date_created'),
     }
+
+    if request.method == "POST":
+        comment = request.POST.get('comment')
+        new_comment = Comment(comment=comment, user=user, listing=listing)
+        new_comment.save()
 
     return render(request, "auctions/listing.html", context)
 

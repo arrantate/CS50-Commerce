@@ -6,6 +6,7 @@ class User(AbstractUser):
     # .listings
     # .watch_list
     # .bids
+    # .comments
     pass
 
 
@@ -29,6 +30,7 @@ class Listing(models.Model):
     category = models.ForeignKey(Category, null=True, on_delete=models.SET_NULL, related_name='listings')
     # .bids
     # .watch_list
+    # .comments
     
     def __str__(self):
         return self.title
@@ -50,3 +52,13 @@ class Bid(models.Model):
 
     def __str__(self):
         return f'{self.date_created.day}-{self.date_created.month}-{self.date_created.year} > {self.bidder} | {self.amount} | {self.listing.title}'
+
+
+class Comment(models.Model):
+    comment = models.TextField(blank=False)
+    date_created = models.DateTimeField(auto_now_add=True)
+    listing = models.ForeignKey(Listing, null=False, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, null=False, on_delete=models.CASCADE, related_name='comments')
+
+    def __str__(self):
+        return self.comment

@@ -36,7 +36,40 @@
         {% endif %}
     </div>
 </div>
+<br>
+<div class="card">
+    <div class="card-content">
+        <p class="subtitle is-4">Comments</p>
 
+        {% for comment in comments %}
+        <div class="media">
+            <div class="media-content">
+                <p>
+                    <strong>{{ comment.user }}</strong> <small>{{ comment.date_created }}</small>
+                    <br>
+                    {{ comment.comment }}
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if user.is_authenticated %}
+        <form class="media" method="POST">
+            {% csrf_token %}
+            <div class="media-content">
+                <div class="field">
+                    <p class="control">
+                        <textarea name="comment" class="textarea" placeholder="Add a comment..."></textarea>
+                    </p>
+                </div>
+                <button type="submit" class="button is-info">Submit</button>
+            </div>
+        </form>
+        {% endif %}
+
+    </div>
+</div>
+<br>
 
 
 {% endblock %}
